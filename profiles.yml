@@ -1,0 +1,21 @@
+ecommerce_pipeline:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "fx56693"
+      user: ""
+      role: "ACCOUNTADMIN"
+      database: "ECOMMERCE_DB"
+      warehouse: "COMPUTE_WH"
+      schema: "DEV_ANALYTICS"
+      threads: 4
+    prod:
+      type: snowflake
+      account: "fx56693"
+      user: ""
+      role: "ACCOUNTADMIN"
+      database: "ECOMMERCE_DB"
+      warehouse: "COMPUTE_WH"
+      schema: "ANALYTICS"
+      threads: 4

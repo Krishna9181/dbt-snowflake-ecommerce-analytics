@@ -1,0 +1,194 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: Cleaned customer data with renamed columns from the raw TPCH customer table.
+    config:
+      tags: ['customer']
+    columns:
+      - name: customer_id
+        description: Unique identifier for each customer.
+        tests: [unique, not_null]
+      - name: customer_name
+        description: Name of the customer.
+      - name: address
+        description: Mailing address of the customer.
+      - name: nation_id
+        description: Foreign key to the nation where the customer is located.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_nations')
+              field: nation_id
+      - name: phone
+        description: Phone number of the customer.
+      - name: account_balance
+        description: Current account balance of the customer.
+      - name: market_segment
+        description: Business segment the customer belongs to.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AUTOMOBILE', 'BUILDING', 'FURNITURE', 'HOUSEHOLD', 'MACHINERY']
+  - name: stg_orders
+    description: Cleaned order header data with renamed columns from the raw TPCH orders table.
+    config:
+      tags: ['order']
+    columns:
+      - name: order_id
+        description: Unique identifier for each order.
+        tests: [unique, not_null]
+      - name: customer_id
+        description: Foreign key to the customer who placed the order.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: order_status
+        description: "Current status of the order: F (fulfilled), O (open), P (partial)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['F', 'O', 'P']
+      - name: total_price
+        description: Total price of the order.
+      - name: order_date
+        description: Date the order was placed.
+      - name: order_priority
+        description: Priority level assigned to the order.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['1-URGENT', '2-HIGH', '3-MEDIUM', '4-NOT SPECIFIED', '5-LOW']
+      - name: clerk
+        description: Clerk responsible for the order.
+      - name: ship_priority
+        description: Shipping priority flag.
+  - name: stg_line_items
+    description: Cleaned order line item data with renamed columns and computed price fields from the raw TPCH lineitem table.
+    config:
+      tags: ['order']
+    columns:
+      - name: order_id
+        description: Foreign key to the parent order.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+      - name: part_id
+        description: Foreign key to the part/product ordered.
+      - name: supplier_id
+        description: Foreign key to the supplier fulfilling this line item.
+      - name: line_number
+        description: Line number within the order, unique per order.
+        tests: [not_null]
+      - name: quantity
+        description: Quantity of the part ordered.
+      - name: extended_price
+        description: Gross price before discount (quantity x unit price).
+      - name: discount
+        description: Discount percentage applied to this line item (0.00 to 1.00).
+      - name: tax
+        description: Tax rate applied to this line item.
+      - name: discounted_price
+        description: Price after discount (extended_price * (1 - discount)).
+      - name: total_price
+        description: Final price including tax (discounted_price * (1 + tax)).
+      - name: return_flag
+        description: "Return status: R (returned), A (accepted), N (none)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['R', 'A', 'N']
+      - name: line_status
+        description: "Line item status: O (open), F (fulfilled)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['O', 'F']
+      - name: ship_date
+        description: Date the line item was shipped.
+      - name: commit_date
+        description: Committed delivery date.
+      - name: receipt_date
+        description: Date the customer received the item.
+      - name: ship_mode
+        description: Shipping method used (e.g., AIR, SHIP, TRUCK, RAIL).
+  - name: stg_parts
+    description: Cleaned product catalog data with renamed columns from the raw TPCH part table.
+    config:
+      tags: ['product']
+    columns:
+      - name: part_id
+        description: Unique identifier for each part/product.
+        tests: [unique, not_null]
+      - name: part_name
+        description: Descriptive name of the part (color and material combination).
+      - name: manufacturer
+        description: Manufacturer of the part.
+      - name: brand
+        description: Brand label of the part.
+      - name: part_type
+        description: Type classification of the part.
+      - name: part_size
+        description: Size of the part.
+      - name: container
+        description: Container type for packaging.
+      - name: retail_price
+        description: Suggested retail price of the part.
+  - name: stg_suppliers
+    description: Cleaned supplier data with renamed columns from the raw TPCH supplier table.
+    config:
+      tags: ['supplier']
+    columns:
+      - name: supplier_id
+        description: Unique identifier for each supplier.
+        tests: [unique, not_null]
+      - name: supplier_name
+        description: Name of the supplier.
+      - name: address
+        description: Mailing address of the supplier.
+      - name: nation_id
+        description: Foreign key to the nation where the supplier is located.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_nations')
+              field: nation_id
+      - name: phone
+        description: Phone number of the supplier.
+      - name: account_balance
+        description: Current account balance of the supplier.
+  - name: stg_nations
+    description: Cleaned nation reference data with renamed columns from the raw TPCH nation table.
+    config:
+      tags: ['geo']
+    columns:
+      - name: nation_id
+        description: Unique identifier for each nation.
+        tests: [unique, not_null]
+      - name: nation_name
+        description: Name of the nation.
+      - name: region_id
+        description: Foreign key to the geographic region.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_regions')
+              field: region_id
+  - name: stg_regions
+    description: Cleaned region reference data with renamed columns from the raw TPCH region table.
+    config:
+      tags: ['geo']
+    columns:
+      - name: region_id
+        description: Unique identifier for each region.
+        tests: [unique, not_null]
+      - name: region_name
+        description: Name of the geographic region.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']

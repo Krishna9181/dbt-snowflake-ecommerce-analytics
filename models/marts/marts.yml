@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: Order-level fact table with aggregated line item metrics including revenue, quantity, shipping, and return statistics.
+    config:
+      tags: ['order']
+    columns:
+      - name: order_id
+        description: Unique identifier for each order.
+        tests: [unique, not_null]
+      - name: customer_id
+        description: Foreign key to the customer who placed the order.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+  - name: dim_customers
+    description: Customer dimension with geographic attributes and lifetime order metrics (total orders, revenue, tenure, returns).
+    config:
+      tags: ['customer']
+    columns:
+      - name: customer_id
+        description: Unique identifier for the customer.
+        tests: [unique, not_null]
+      - name: market_segment
+        description: Business segment the customer belongs to.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AUTOMOBILE', 'BUILDING', 'FURNITURE', 'HOUSEHOLD', 'MACHINERY']
+      - name: region_name
+        description: Geographic region of the customer.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']
+  - name: dim_products
+    description: Product dimension with supplier count and sales metrics (orders, quantity sold, revenue, returns).
+    config:
+      tags: ['product']
+    columns:
+      - name: part_id
+        description: Unique identifier for the product.
+        tests: [unique, not_null]
+  - name: mart_customer_orders_summary
+    description: Aggregated summary of customer orders by region, nation, and market segment. Includes revenue, order counts, and return rates.
+    config:
+      tags: ['customer', 'order']
+    columns:
+      - name: region_name
+        description: Geographic region.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST']
+      - name: nation_name
+        description: Country name.
+        tests: [not_null]
+      - name: market_segment
+        description: Business segment.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AUTOMOBILE', 'BUILDING', 'FURNITURE', 'HOUSEHOLD', 'MACHINERY']

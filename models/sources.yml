@@ -1,0 +1,55 @@
+version: 2
+
+sources:
+  - name: tpch
+    description: TPC-H benchmark dataset representing a global supply chain / ecommerce scenario. Scaling factor 1.
+    database: SNOWFLAKE_SAMPLE_DATA
+    schema: TPCH_SF1
+    tables:
+      - name: customer
+        description: Customer master data including demographics and market segment.
+        columns:
+          - name: C_CUSTKEY
+            description: Primary key for customers.
+            tests: [unique, not_null]
+      - name: orders
+        description: Order header data with status, priority, and pricing.
+        columns:
+          - name: O_ORDERKEY
+            description: Primary key for orders.
+            tests: [unique, not_null]
+      - name: lineitem
+        description: Order line item details with pricing, shipping, and return information.
+        columns:
+          - name: L_ORDERKEY
+            description: Foreign key to the parent order.
+            tests: [not_null]
+          - name: L_LINENUMBER
+            description: Line number within the order.
+            tests: [not_null]
+      - name: part
+        description: Product catalog with manufacturer, brand, and pricing.
+        columns:
+          - name: P_PARTKEY
+            description: Primary key for parts/products.
+            tests: [unique, not_null]
+      - name: partsupp
+        description: Part-supplier relationships with availability and cost.
+      - name: supplier
+        description: Supplier master data including location and account balance.
+        columns:
+          - name: S_SUPPKEY
+            description: Primary key for suppliers.
+            tests: [unique, not_null]
+      - name: nation
+        description: Nation reference data (25 countries).
+        columns:
+          - name: N_NATIONKEY
+            description: Primary key for nations.
+            tests: [unique, not_null]
+      - name: region
+        description: Region reference data (5 geographic regions).
+        columns:
+          - name: R_REGIONKEY
+            description: Primary key for regions.
+            tests: [unique, not_null]
