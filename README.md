@@ -4,7 +4,7 @@ A production-grade dbt project on Snowflake, built on the TPC-H benchmark datase
 
 ---
 
-## Architecture
+## Workflow
 
 ```mermaid
 flowchart LR
