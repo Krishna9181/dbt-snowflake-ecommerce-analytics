@@ -1,6 +1,4 @@
 [connections.default]
-account = "ZHMUYKF-SM18457"
-user = "KRISHNA9181"
 authenticator = "snowflake"
 role = "ACCOUNTADMIN"
 warehouse = "COMPUTE_WH"
