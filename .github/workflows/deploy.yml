@@ -1,0 +1,59 @@
+name: dbt CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  ci:
+    if: github.event_name == 'pull_request'
+    name: CI - Test Changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: snowflakedb/snowflake-cli-action@v2
+        with:
+          cli-version: "3.16"
+
+      - name: Test dbt project
+        env:
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        run: |
+          snow dbt deploy ecommerce_pipeline_ci --default-target dev --force
+          snow dbt execute ecommerce_pipeline_ci run
+          snow dbt execute ecommerce_pipeline_ci test
+          snow dbt drop ecommerce_pipeline_ci
+
+  cd:
+    if: github.event_name == 'push'
+    name: CD - Deploy to Production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: snowflakedb/snowflake-cli-action@v2
+        with:
+          cli-version: "3.16"
+
+      - name: Deploy to Snowflake Production
+        env:
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        run: |
+          snow dbt deploy ecommerce_pipeline --default-target prod --force
+          snow dbt execute ecommerce_pipeline run
+          snow dbt execute ecommerce_pipeline test
