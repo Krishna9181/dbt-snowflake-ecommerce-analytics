@@ -2,6 +2,7 @@ with source as (
     select * from {{ source('tpch', 'customer') }}
 )
 
+
 select
     C_CUSTKEY as customer_id,
     C_NAME as customer_name,
