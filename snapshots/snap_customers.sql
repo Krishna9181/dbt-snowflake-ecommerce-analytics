@@ -2,7 +2,7 @@
 
 {{
     config(
-        target_schema='ANALYTICS',
+        target_schema=target.schema,
         unique_key='customer_id',
         strategy='check',
         check_cols=['customer_name', 'address', 'phone', 'account_balance', 'market_segment']

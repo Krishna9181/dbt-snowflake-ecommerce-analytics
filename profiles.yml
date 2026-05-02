@@ -3,7 +3,7 @@ ecommerce_pipeline:
   outputs:
     dev:
       type: snowflake
-      account: "fx56693"
+      account: "ZHMUYKF-SM18457"
       user: ""
       role: "ACCOUNTADMIN"
       database: "ECOMMERCE_DB"
@@ -12,7 +12,7 @@ ecommerce_pipeline:
       threads: 4
     prod:
       type: snowflake
-      account: "fx56693"
+      account: "ZHMUYKF-SM18457"
       user: ""
       role: "ACCOUNTADMIN"
       database: "ECOMMERCE_DB"
