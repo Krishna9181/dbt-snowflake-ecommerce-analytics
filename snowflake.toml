@@ -1,0 +1,8 @@
+[connections.default]
+account = "fx56693"
+user = "KRISHNA9181"
+authenticator = "snowflake"
+role = "ACCOUNTADMIN"
+warehouse = "COMPUTE_WH"
+database = "ECOMMERCE_DB"
+schema = "ANALYTICS"
