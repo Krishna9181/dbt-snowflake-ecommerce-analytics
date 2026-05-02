@@ -12,6 +12,9 @@ permissions:
 
 env:
   SNOWFLAKE_DEFAULT_CONNECTION_NAME: default
+  SNOWFLAKE_CONNECTIONS_DEFAULT_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+  SNOWFLAKE_CONNECTIONS_DEFAULT_USER: ${{ secrets.SNOWFLAKE_USER }}
+  SNOWFLAKE_CONNECTIONS_DEFAULT_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
 
 jobs:
   ci:
@@ -29,8 +32,6 @@ jobs:
           default-config-file-path: snowflake.toml
 
       - name: Test dbt project
-        env:
-          SNOWFLAKE_CONNECTIONS_DEFAULT_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
         run: |
           snow dbt deploy ecommerce_pipeline_ci --default-target dev --force
           snow dbt execute ecommerce_pipeline_ci run
@@ -52,9 +53,10 @@ jobs:
           default-config-file-path: snowflake.toml
 
       - name: Deploy to Snowflake Production
-        env:
-          SNOWFLAKE_CONNECTIONS_DEFAULT_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
         run: |
           snow dbt deploy ecommerce_pipeline --default-target prod --force
-          snow dbt execute ecommerce_pipeline run
-          snow dbt execute ecommerce_pipeline test
+
+      - name: Ensure scheduled task exists
+        run: |
+          snow sql -q "CREATE TASK IF NOT EXISTS ECOMMERCE_DB.ANALYTICS.RUN_DBT_DAILY WAREHOUSE = COMPUTE_WH SCHEDULE = 'USING CRON 0 6 * * * UTC' AS EXECUTE DBT PROJECT ECOMMERCE_DB.ANALYTICS.ECOMMERCE_PIPELINE ARGS = 'run';"
+          snow sql -q "ALTER TASK IF EXISTS ECOMMERCE_DB.ANALYTICS.RUN_DBT_DAILY RESUME;"
